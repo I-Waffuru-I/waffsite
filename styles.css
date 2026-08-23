@@ -34,16 +34,19 @@
   nav a:hover {
     color: #58a6ff;
   }
+
   section {
     max-width: 800px;
     margin: 40px auto;
     padding: 0 20px;
   }
+
   h2 {
     color: #58a6ff;
     border-bottom: 1px solid #30363d;
     padding-bottom: 8px;
   }
+
   .card {
     background-color: #161b22;
     border: 1px solid #30363d;
@@ -51,9 +54,11 @@
     padding: 15px 20px;
     margin-bottom: 15px;
   }
+
   ul {
     padding-left: 20px;
   }
+
   footer {
     text-align: center;
     padding: 20px;
@@ -61,15 +66,17 @@
     color: #8b949e;
     margin-top: 40px;
   }
+
   a {
     color: #58a6ff;
+    text-decoration: none;
   }
-  br {
-    padding: 100px;
-  }
+
   button.a {
     color: #58a6ff;
     background:none;
     border:none;
     cursor:pointer;
+    font-size: 1em;
+    padding: 0;
   }
