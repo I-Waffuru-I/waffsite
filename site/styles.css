@@ -24,6 +24,8 @@
     text-align: center;
     background-color: #161b22;
     padding: 10px;
+    position: sticky;
+    top: 0;
   }
   nav a {
     color: #c9d1d9;

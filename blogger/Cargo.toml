@@ -1,0 +1,8 @@
+[package]
+name = "blogger"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+pulldown-cmark = "0.13.4"
+rocket = "0.5.1"
