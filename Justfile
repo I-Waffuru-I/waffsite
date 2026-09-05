@@ -3,4 +3,8 @@ default:
 
 
 back:
-	cd blogger && cargo run -- "../site" "../tmp/blogs.txt" "../tmp/blogs"
+	cd blogger && cargo run -- "../site" "../tmp/blogs"
+
+
+clean:
+	cd blogger && cargo clean
