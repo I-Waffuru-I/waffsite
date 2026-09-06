@@ -1,4 +1,4 @@
-use rocket::{Build, Rocket, State, fs::FileServer};
+use rocket::{Build, Rocket, State, fs::{FileServer, NamedFile}, response::content::RawJson};
 use clap::Parser;
 use rocket_cors::{AllowedOrigins, CorsOptions};
 
@@ -10,11 +10,11 @@ use rocket_cors::{AllowedOrigins, CorsOptions};
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct WConfig {
-    /// Directory where the root files are found
-    root_path: String,
+    /// Directory where the website files are found
+    site_path: String,
 
-    /// The filepath where the list of blogs can be found
-    list_path: String,
+    /// The filepath where the list of blogs (index.json) can be found
+    blog_root_path: String,
 
     // md, html
     //allowed_types: Vec<String>,
@@ -27,8 +27,8 @@ async fn main() {
 }
 
 fn waffsite(config : WConfig) -> Rocket<Build> {
-    let dir = config.root_path.to_string();
-    let content = config.list_path.to_string();
+    let dir = config.site_path.to_string();
+    let content = config.blog_root_path.to_string();
 
     let cors = CorsOptions::default()
         .allowed_origins(AllowedOrigins::all())
@@ -45,23 +45,7 @@ fn waffsite(config : WConfig) -> Rocket<Build> {
 
 
 #[get("/list")]
- async fn bloglist(config : &State<WConfig>) -> String {
-    let mut cache = vec!();
-    if let Ok(d) = std::fs::read_dir(config.list_path.to_string()) {
-        let entries = d.filter_map(|item| item.ok());
-        let s = entries.filter_map(|e| {
-            if e.file_type().is_ok_and(|ft| ft.is_file()) {
-                e.file_name().into_string().ok()
-            } else {
-                None
-            }
-        });
-        for file in s {
-            if file.ends_with(".md") {
-                cache.push(file);
-            }
-        }
-    };
-    cache.join(";")
+ async fn bloglist(config : &State<WConfig>) -> Option<NamedFile> {
+    NamedFile::open(format!("{}/blogs.json",config.blog_root_path)).await.ok()
 }
 

@@ -4,22 +4,32 @@ import { getBlogPost, getBlogList, parseMarkdownToHtml } from "./util.js";
 let list = await getBlogList()
 console.log("after getting list:")
 console.log(list)
-
-if (list != undefined && list != null) {
-	let element = document.getElementById("bloglist")
-	let s = "<ul>"
-	for (let val of list.value.split(";")) {
-		s += "<li>"+val+"</li>"
-	}
-	s += "</ul>"
-
-	element.innerHTML = s
-}
+renderBlogList(list)
 
 document.getElementById("bloglist").addEventListener("click", async function(e) {
-	let post = await getBlogPost(e.target.innerText)
-	document.getElementById("current_blog").innerHTML = parseMarkdownToHtml(post)
+	let title = e.target.innerText
+	const res = list.find((element) => element['title'] == title)
+	console.log(`found ${res}`)
+	if (res != undefined) {
+		let post = await getBlogPost(res)
+		document.getElementById("current_blog").innerHTML = parseMarkdownToHtml(post)
+	}
 });
 
 
+function renderBlogList(ls){
+	if (ls != undefined && ls != null) {
+		let element = document.getElementById("bloglist")
+		if (ls.length > 0){
+			let s = "<ul>"
+			for (let val of ls) {
+				s += "<li>"+val['title']+"</li>"
+			}
+			s += "</ul>"
+			element.innerHTML = s
+		} else {
+			element.innerHTML = "<h4>There are no blogs yet...</h4>"
+		}
+	}
+}
 

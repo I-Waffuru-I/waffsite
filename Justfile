@@ -3,10 +3,11 @@ default:
 
 
 back:
-	cd blogger && cargo run -- "../site" "../tmp/blogs"
+	cd blogger && cargo run -- "../site" "../tmp"
+
+site:
+	cd site && live-server
 
 
 clean:
 	cd blogger && cargo clean
-site:
-	cd site && live-server

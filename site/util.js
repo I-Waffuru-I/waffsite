@@ -1,6 +1,4 @@
 
-import { CachedList, CACHE_LIST_KEY } from "./types.js";
-
 // yanked from and built upon
 // https://randyperkins2k.medium.com/writing-a-simple-markdown-parser-using-javascript-1f2e9449a558
 export function parseMarkdownToHtml(text) {
@@ -14,7 +12,7 @@ export function parseMarkdownToHtml(text) {
 }
 
 export async function getBlogPost(blog) {
-	const request = new Request("http://localhost:8000/blog/data/"+blog)
+	const request = new Request(`/blog/data/${blog['dir']}/${blog['file']}`)
 	return await fetch(request)
 		.then(async (resp) => {
 			if (resp.status == 200) {
@@ -25,43 +23,21 @@ export async function getBlogPost(blog) {
 }
 
 export async function getBlogList(){
-	console.log("before")
-	let needFetch = false;
-
-	let storageCachedList = window.localStorage.getItem(CACHE_LIST_KEY);
-	if (storageCachedList == null || storageCachedList == "") {
-		needFetch = true;
-	}
-
-	let cachedList = new CachedList()
-	if (!needFetch) {
-		cachedList  = CachedList.fromStr(storageCachedList)
-		if (cachedList.value == "" || cachedList.value == null) {
-			needFetch = true
-		}
-		if (cachedList.expire_time <= Date.now()){
-			needFetch = true;
-		}
-	}
-
-	if (needFetch) {
-		console.log("Fetching list of blogs")
-		cachedList = await fetchList()
-	}
-	console.log("list before returning:"+ cachedList)
-	return cachedList
+	return await fetchList()
 }
 
-
 async function fetchList(){
-	const request = new Request("http://localhost:8000/blog/list")
+	const request = new Request("/blog/list")
 	return await fetch(request)
 		.then(async (resp) => {
 			if (resp.status == 200) {
+				/*
 				let list = CachedList.fromValue(await resp.text());
 				window.localStorage.setItem(CACHE_LIST_KEY, list.toStr());
 				console.log("success getting list"+list)
 				return list
+				*/
+				return resp.json()
 			} 
 		})
 		.catch((e) => {console.log(e)})
