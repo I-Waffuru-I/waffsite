@@ -44,7 +44,6 @@
   }
   h2 {
     color: #58a6ff;
-    border-bottom: 1px solid #30363d;
     padding-bottom: 8px;
   }
 
@@ -112,3 +111,12 @@
     color: #0d1117;
     cursor: default;
   }
+
+
+  ul.blogs {
+
+  }
+  ul.blogs li {
+
+  }
+
