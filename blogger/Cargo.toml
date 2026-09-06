@@ -7,3 +7,4 @@ edition = "2024"
 clap = { version = "4.6.6", features = ["derive"] }
 pulldown-cmark = "0.13.4"
 rocket = "0.5.1"
+rocket_cors = "0.6.0"

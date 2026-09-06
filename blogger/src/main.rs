@@ -1,11 +1,11 @@
-use rocket::{Build, Rocket, State, fs::{FileServer, NamedFile}};
+use rocket::{Build, Rocket, State, fs::FileServer};
 use clap::Parser;
-use std::path;
+use rocket_cors::{AllowedOrigins, CorsOptions};
 
 #[macro_use] extern crate rocket;
 
 
-/// I'm a rocket aaaap
+/// I'm a rocket aaaapp
 /// Rocket aaaaapp!
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -15,16 +15,10 @@ struct WConfig {
 
     /// The filepath where the list of blogs can be found
     list_path: String,
+
     // md, html
     //allowed_types: Vec<String>,
 }
-
-// Managed lijst blog files in 
-#[derive(Debug)]
-struct CachedBlogList {
-    pub list: Vec<String>
-}
-
 
 #[rocket::main]
 async fn main() {
@@ -34,9 +28,25 @@ async fn main() {
 
 fn waffsite(config : WConfig) -> Rocket<Build> {
     let dir = config.root_path.to_string();
+    let content = config.list_path.to_string();
 
-    // maak cached lijst van blogs in de dir
-    let mut cache = CachedBlogList { list : vec!() };
+    let cors = CorsOptions::default()
+        .allowed_origins(AllowedOrigins::all())
+        .allow_credentials(true)
+        .to_cors().expect("Failed to create cors ");
+
+    rocket::build()
+        .manage(config)
+        .attach(cors)
+        .mount("/", FileServer::from(dir))
+        .mount("/blog", routes![bloglist])
+        .mount("/blog/data", FileServer::from(content).rank(-1))
+}
+
+
+#[get("/list")]
+ async fn bloglist(config : &State<WConfig>) -> String {
+    let mut cache = vec!();
     if let Ok(d) = std::fs::read_dir(config.list_path.to_string()) {
         let entries = d.filter_map(|item| item.ok());
         let s = entries.filter_map(|e| {
@@ -47,25 +57,11 @@ fn waffsite(config : WConfig) -> Rocket<Build> {
             }
         });
         for file in s {
-            cache.list.push(file);
+            if file.ends_with(".md") {
+                cache.push(file);
+            }
         }
     };
-
-    rocket::build()
-        .manage(config)
-        .manage(cache)
-        //.mount("/", routes![index])
-        .mount("/", FileServer::from(dir))
-        .mount("/blog", routes![bloglist, get_blog])
+    cache.join(";")
 }
 
-
-#[get("/list")]
- async fn bloglist(cache : &State<CachedBlogList>) -> String {
-    cache.list.join(";")
-}
-
-#[get("/byid/<id>")]
-fn get_blog(config: &State<WConfig>, id: &str) -> String {
-    format!("blog {}/{}",config.list_path,id)
-}

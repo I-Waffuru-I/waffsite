@@ -8,3 +8,5 @@ back:
 
 clean:
 	cd blogger && cargo clean
+site:
+	cd site && live-server
