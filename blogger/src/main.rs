@@ -1,30 +1,25 @@
+use std::fs::File;
+
 use rocket::{Build, Rocket, State, fs::{FileServer, NamedFile}};
 use clap::Parser;
-use std::path;
 
 #[macro_use] extern crate rocket;
 
 
-/// I'm a rocket aaaap
+/// I'm a rocket aaaapp
 /// Rocket aaaaapp!
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct WConfig {
-    /// Directory where the root files are found
-    root_path: String,
+    /// Directory where the website files are found
+    site_path: String,
 
-    /// The filepath where the list of blogs can be found
-    list_path: String,
+    /// The filepath where the list of blogs (index.json) can be found
+    blog_root_path: String,
+
     // md, html
     //allowed_types: Vec<String>,
 }
-
-// Managed lijst blog files in 
-#[derive(Debug)]
-struct CachedBlogList {
-    pub list: Vec<String>
-}
-
 
 #[rocket::main]
 async fn main() {
@@ -33,39 +28,26 @@ async fn main() {
 }
 
 fn waffsite(config : WConfig) -> Rocket<Build> {
-    let dir = config.root_path.to_string();
+    let dir = config.site_path.to_string();
+    let content = config.blog_root_path.to_string();
 
-    // maak cached lijst van blogs in de dir
-    let mut cache = CachedBlogList { list : vec!() };
-    if let Ok(d) = std::fs::read_dir(config.list_path.to_string()) {
-        let entries = d.filter_map(|item| item.ok());
-        let s = entries.filter_map(|e| {
-            if e.file_type().is_ok_and(|ft| ft.is_file()) {
-                e.file_name().into_string().ok()
-            } else {
-                None
-            }
-        });
-        for file in s {
-            cache.list.push(file);
-        }
-    };
+    // add rocket_cors or alternative if I end up switching to two domains for front/back
+
+    if let Err(_) = File::open(format!("{}/blogs.json",config.blog_root_path)) {
+        panic!("Couldn't read `blogs.json` in the provided root directory.
+Does it exist? Does the process have read-permission to it?")
+    }
 
     rocket::build()
         .manage(config)
-        .manage(cache)
-        //.mount("/", routes![index])
         .mount("/", FileServer::from(dir))
-        .mount("/blog", routes![bloglist, get_blog])
+        .mount("/blog", routes![bloglist])
+        .mount("/blog/data", FileServer::from(content).rank(-1))
 }
 
 
 #[get("/list")]
- async fn bloglist(cache : &State<CachedBlogList>) -> String {
-    cache.list.join(";")
+ async fn bloglist(config : &State<WConfig>) -> Option<NamedFile> {
+    NamedFile::open(format!("{}/blogs.json",config.blog_root_path)).await.ok()
 }
 
-#[get("/byid/<id>")]
-fn get_blog(config: &State<WConfig>, id: &str) -> String {
-    format!("blog {}/{}",config.list_path,id)
-}
