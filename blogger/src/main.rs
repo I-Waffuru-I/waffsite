@@ -1,6 +1,5 @@
-use rocket::{Build, Rocket, State, fs::{FileServer, NamedFile}, response::content::RawJson};
+use rocket::{Build, Rocket, State, fs::{FileServer, NamedFile}};
 use clap::Parser;
-use rocket_cors::{AllowedOrigins, CorsOptions};
 
 #[macro_use] extern crate rocket;
 
@@ -30,14 +29,10 @@ fn waffsite(config : WConfig) -> Rocket<Build> {
     let dir = config.site_path.to_string();
     let content = config.blog_root_path.to_string();
 
-    let cors = CorsOptions::default()
-        .allowed_origins(AllowedOrigins::all())
-        .allow_credentials(true)
-        .to_cors().expect("Failed to create cors ");
+    // add rocket_cors or alternative if I end up switching to two domains for front/back
 
     rocket::build()
         .manage(config)
-        .attach(cors)
         .mount("/", FileServer::from(dir))
         .mount("/blog", routes![bloglist])
         .mount("/blog/data", FileServer::from(content).rank(-1))
