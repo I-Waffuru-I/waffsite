@@ -1,3 +1,5 @@
+use std::fs::File;
+
 use rocket::{Build, Rocket, State, fs::{FileServer, NamedFile}};
 use clap::Parser;
 
@@ -30,6 +32,11 @@ fn waffsite(config : WConfig) -> Rocket<Build> {
     let content = config.blog_root_path.to_string();
 
     // add rocket_cors or alternative if I end up switching to two domains for front/back
+
+    if let Err(_) = File::open(format!("{}/blogs.json",config.blog_root_path)) {
+        panic!("Couldn't read `blogs.json` in the provided root directory.
+Does it exist? Does the process have read-permission to it?")
+    }
 
     rocket::build()
         .manage(config)
