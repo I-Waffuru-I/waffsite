@@ -120,3 +120,13 @@
 
   }
 
+  #current_blog img {
+    max-width: 100%;
+    height: auto;
+  }
+  code.code {
+    background-color: #0d1117;
+    padding: 5px;
+    color: #d9d9df;
+  }
+
