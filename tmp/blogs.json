@@ -1,0 +1,14 @@
+[
+	{
+		"dir":"blog2",
+		"title":"Blog Number 2",
+		"file":"blog2.md",
+		"desc":"Very Cool Blog"
+	},
+	{
+		"dir":"blog4",
+		"title":"Blog Number 4",
+		"file":"blog4.md",
+		"desc":"Even more cool blog"
+	}
+]

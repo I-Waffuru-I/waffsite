@@ -1,6 +1,7 @@
 
 import { getBlogPost, getBlogList, parseMarkdownToHtml } from "./util.js";
 
+document.getElementById("current_blog").style.display = 'none'
 let list = await getBlogList()
 console.log("after getting list:")
 console.log(list)
@@ -12,7 +13,9 @@ document.getElementById("bloglist").addEventListener("click", async function(e) 
 	console.log(`found ${res}`)
 	if (res != undefined) {
 		let post = await getBlogPost(res)
-		document.getElementById("current_blog").innerHTML = parseMarkdownToHtml(post)
+		const el = document.getElementById("current_blog")
+		el.innerHTML = parseMarkdownToHtml(post, `blog/data/${res['dir']}`)
+		el.style.display = 'block'
 	}
 });
 
